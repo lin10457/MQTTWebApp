@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <script>
+        // Create a client instance
+        client = new Paho.MQTT.Client("wss://iot.eclipse.org:443/ws","Whisper07");
+
+        // set callback handlers
+        client.onConnectionLost = onConnectionLost;
+        client.onMessageArrived = onMessageArrived;
+
+        // connect the client
+        client.connect({ onSuccess: onConnect });
+
+
+        // called when the client connects
+        function onConnect() {
+            // Once a connection has been made, make a subscription and send a message.
+            console.log("onConnect");
+            //client.subscribe("tw/iot/06");
+            //message = new Paho.MQTT.Message("Wellcom");
+            //message.destinationName = "tw/iot/06";
+            //client.send(message);
+        }
+
+        // called when the client loses its connection
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("onConnectionLost:" + responseObject.errorMessage);
+            }
+        }
+
+        // called when a message arrives
+        function onMessageArrived(message) {
+            console.log("onMessageArrived:" + message.payloadString);
+            var output = document.getElementById('txtMsgs');
+            output.innerHTML = message.payloadString+"<br>"+output.innerHTML;
+           
+
+        }
+        function subTopic()
+        {
+            var top = document.getElementById('txtSubTopic').value;
+            client.subscribe(top);
+        }
+        function pubTopic()
+        {
+            var sub = document.getElementById('txtPubTopic').value;
+            var msg = document.getElementById('txtPubMsg').value;
+            message = new Paho.MQTT.Message(msg);
+            message.destinationName = sub;
+            client.send(message);
+        }
+        
+    </script>
+    主題:
+    <input type="text" id="txtSubTopic">
+    <input type="button" value="訂閱" id="btnSubTopic"onclick="subTopic()">
+    <hr>
+    主題:
+    <input type="text" id="txtPubTopic"><br>
+    訊息:
+    <input type="text" id="txtPubMsg"><br>
+    <input type="button" value="發送" id="btnPubMsg"onclick="pubTopic()">
+    <hr>
+    訊息列:
+    <div id="txtMsgs"></div>
+</body>
+
+</html>
